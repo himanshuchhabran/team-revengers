@@ -1,14 +1,15 @@
 // src/components/FarmerView.jsx
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import styles from "./styles.js";
-import QRCode from "./QRCode.jsx"; // <-- new simplified QR code
+import QRCode from "./QRCode.jsx";
 
 const FarmerView = () => {
   const [produceName, setProduceName] = useState("");
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const qrRef = useRef(null); // ref for QRCode canvas
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +29,19 @@ const FarmerView = () => {
       );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDownload = () => {
+    if (qrRef.current) {
+      const canvas = qrRef.current.querySelector("canvas");
+      if (canvas) {
+        const url = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `produce-qr.png`;
+        link.click();
+      }
     }
   };
 
@@ -64,7 +78,6 @@ const FarmerView = () => {
             </h3>
 
             {(() => {
-              // support different backend field names
               const produceId = result.produceId || result.id || result._id;
 
               return (
@@ -83,7 +96,7 @@ const FarmerView = () => {
                     </strong>
                   </p>
 
-                  <div style={styles.qrContainer}>
+                  <div style={styles.qrContainer} ref={qrRef}>
                     {produceId ? (
                       <QRCode
                         value={`http://localhost:5173/?id=${produceId}`}
@@ -95,6 +108,23 @@ const FarmerView = () => {
                       </div>
                     )}
                   </div>
+
+                  {produceId && (
+                    <button
+                      onClick={handleDownload}
+                      style={{
+                        marginTop: "1rem",
+                        padding: "0.5rem 1rem",
+                        backgroundColor: "#15803d",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "0.375rem",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Download QR
+                    </button>
+                  )}
                 </>
               );
             })()}
