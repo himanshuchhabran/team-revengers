@@ -10,7 +10,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "ethers": "^6.15.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "ethers": "^5.7.2",
     "express": "^5.1.0"
   }
 }
